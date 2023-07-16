@@ -1,30 +1,30 @@
 float noiseScale = 0.003;
 int starHeight = 500;
 int numStars = 200;
-int dawnColorHeight = 2;
 Star[] sky = new Star[numStars];
+Sunset sunset;
+float rads = 0;
+int rads_delta = 1;
 
 void setup () {
   size(1112, 834);
-  generateStars();
+  initializeStars();
+  sunset = new Sunset(color(63, 128, 166), color(228, 133, 189), 2);
 }
 
 void draw() {
-  generateBackground(color(63, 128, 166), color(228, 133, 189));
+  rads += rads_delta*0.05;
+  generateBackground();
   generateMountains(5);
   for (Star star : sky) {
     star.shine();
   }
 }
 
-void generateBackground(color up, color down) {
-  strokeWeight(1);
-  float hSq = height*height;
-  for (int y = 0; y < height; y++) {
-    float t = (y*y)/hSq*dawnColorHeight; // customize height of dawn color
-    stroke(lerpColor(up, down, t));
-    line(0, y, width, y);
-  }
+void generateBackground() {
+  if (rads<100) { rads = 100; rads_delta = 1; }
+  if (rads>110) { rads = 110; rads_delta = -1; }
+  sunset.vibe(rads);
 }
 
 void generateMountains(float layers) {
@@ -44,18 +44,47 @@ void generateMountains(float layers) {
       for (int n = 0; n < noiseLayers; n++) {
         y += noise((x+i*width+n*width)*noiseScale) * n/noiseLayers / 4; // turns horizontal lines into mountains
       }
-      vertex(x, y*height);
+      vertex(x, y*height*sin(radians(rads)));
     }
     vertex(width, height);
     endShape();
   }
 }
 
-void generateStars() {
+void initializeStars() {
   for (int i = 0; i < numStars; i++) {
     sky[i] = new Star();
   }
 }
+
+/* ===== Classes ===== */
+
+class Sunset {
+  color up, down;
+  float dawnColorHeight;
+
+  Sunset(color up, color down, float dawnColorHeight) {
+    this.up = up;
+    this.down = down;
+    this.dawnColorHeight = dawnColorHeight;
+    init(this.up, this.down, this.dawnColorHeight);
+  }
+
+  void init(color up, color down, float dawnColorHeight) {
+    strokeWeight(1);
+    float hSq = height*height;
+    for (int y = 0; y < height; y++) {
+      float t = (y*y)/hSq*dawnColorHeight; // customize height of dawn color
+      stroke(lerpColor(up, down, t));
+      line(0, y, width, y);
+    }
+  }
+
+  void vibe(float rads) {
+    init(this.up, this.down, this.dawnColorHeight*sin(radians(rads)));
+  }
+}
+
 
 class Star {
   float x, y, c, a, dir, sz;
