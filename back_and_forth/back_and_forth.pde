@@ -20,7 +20,7 @@ void draw() {
     PVector b= new PVector(cos(f1), cos(f2) );
     PVector v= PVector.lerp(a,b,20);
     p.add(v);
-    if ( 0.1>random(1.0) ||p.x<0 || p.x>width || p.y<0 || p.y>height)
+    if ( 0.1>random(1.0) || p.x<0 || p.x>width || p.y<0 || p.y>height)
       ps[i]= new PVector(random(width), random(height)); 
     float mag= v.mag();
     //strokeWeight(1 + 0.6/(0.01+mag));  
